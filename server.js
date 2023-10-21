@@ -2,6 +2,10 @@ const express = require('express')
 const mongoose = require('mongoose')
 const expressLayouts = require('express-ejs-layouts')
 const indexRouter = require('./routes/index')
+const authorRouter = require('./routes/author')
+const bodyParser = require('body-parser')
+
+
 
 if(process.env.NODE_ENV !== "production") {
     require('dotenv').config()
@@ -10,6 +14,8 @@ if(process.env.NODE_ENV !== "production") {
 
 
 const app = express()
+
+app.use(bodyParser.urlencoded({limit: '10mb', extended: false}))
 
 // view configuration to use ejs
 app.set("view engine", "ejs")    /// this is we are setting which engine is we are gone use for our views
@@ -24,10 +30,10 @@ app.use(express.static('public'))   // telling the expresss that where we put ou
 
 //database configuration
 
-mongoose.connect("mongodb://127.0.0.1:27017/mybrary")
+mongoose.connect(process.env.DATABASE_URL)
 const db = mongoose.connection
-db.on('error', error=>console.log(error))
-db.on('open', ()=>console.log("connected to manago"))
+db.on('error', (error)=>console.log(error))
+db.on('open', ()=>console.log("connected to mongo"))
 
 
 
@@ -35,5 +41,6 @@ db.on('open', ()=>console.log("connected to manago"))
 app.listen(process.env.PORT || 3000)
 
 // routing 
-
+ 
 app.use('/', indexRouter)
+app.use('/authors', authorRouter)
