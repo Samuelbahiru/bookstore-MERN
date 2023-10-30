@@ -1,10 +1,10 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const expressLayouts = require('express-ejs-layouts')
+const bodyParser = require('body-parser')
 const indexRouter = require('./routes/index')
 const authorRouter = require('./routes/author')
-const bodyParser = require('body-parser')
-
+const bookRouter = require('./routes/book')
 
 
 if(process.env.NODE_ENV !== "production") {
@@ -12,8 +12,8 @@ if(process.env.NODE_ENV !== "production") {
 }
 
 
-
 const app = express()
+
 
 app.use(bodyParser.urlencoded({limit: '10mb', extended: false}))
 
@@ -44,3 +44,4 @@ app.listen(process.env.PORT || 3000)
  
 app.use('/', indexRouter)
 app.use('/authors', authorRouter)
+app.use('/books', bookRouter )
