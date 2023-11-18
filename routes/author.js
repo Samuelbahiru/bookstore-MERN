@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const Author = require("../models/author");
-// All Authors Routes
+const Book = require("../models/book");
 
+// All Authors Routes
 router.get("/", async (req, res) => {
   let searchOptions = {};
   if (req.query.name != null && req.query.name !== "") {
@@ -26,7 +27,6 @@ router.get("/new", (request, res) => {
 });
 
 // creating author
-
 router.post("/", async (req, res) => {
   const author = new Author({
     name: req.body.name,
@@ -43,10 +43,22 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/:id", (req, res) => {
-  res.status(200).send(req.params.id.toString());
+// show specific author details
+router.get("/:id", async (req, res) => {
+  try {
+    const author = await Author.findById(req.params.id);
+    const book = await Book.find({ author: author.id }).limit(6).exec();
+    res.render("authors/show", {
+      author: author,
+      booksByAuthor: book,
+    });
+  } catch (err) {
+    console.log("err");
+    res.redirect("/");
+  }
 });
 
+// edit the author details
 router.get("/:id/edit", async (req, res) => {
   try {
     const author = await Author.findById(req.params.id);
@@ -56,6 +68,7 @@ router.get("/:id/edit", async (req, res) => {
   }
 });
 
+// author update it is details when update is clicked
 router.put("/:id", async (req, res) => {
   let author;
   try {
@@ -76,13 +89,15 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete("/authors/:id", async (req, res) => {
+// delete the author
+router.delete("/:id", async (req, res) => {
   let author;
   try {
     author = await Author.findById(req.params.id);
-    author.remove();
+    author.deleteOne();
     res.redirect(`/authors`);
-  } catch {
+  } catch (err) {
+    console.log("Err", err);
     if (author == null) {
       res.redirect("/");
     } else {

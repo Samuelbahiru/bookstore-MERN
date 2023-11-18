@@ -20,10 +20,10 @@ app.set("view engine", "ejs"); /// this is we are setting which engine is we are
 app.set("views", __dirname + "/views"); /// this is settings the path where all of our views will be stored
 
 // configration of layout(base html files and public files)
+app.use(methodOverride("_method"));
 app.set("layout", "layouts/layout"); // this is saying that our base html or layout is find to layouts/layout
 app.use(expressLayouts);
 app.use(express.static("public")); // telling the expresss that where we put our public files
-app.use(methodOverride("_method"));
 
 //database configuration
 
