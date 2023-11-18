@@ -34,44 +34,61 @@ router.post("/", async (req, res) => {
   try {
     const newAuthor = await author.save(); //this is beacuse everything in mongodb is done asynchronusly
     //  res.redirect(`authors/${newAuthor.id}`)
-    res.redirect("authors");
+    res.redirect(`authors/${newAuthor.id}`);
   } catch {
     res.render("authors/new", {
       author: author,
       errorMessage: "Error creating the Author",
     });
   }
-  // author.save().then((err, newAuthor)=>{
-  //     if(err){
-  //         res.render('authors/new', {
-  //             author: author,
-  //             errorMessage: 'Error has happend'
-  //         })
-  //     }
-  //     else{
-  //         // res.redirect(`authors/${newAuthor.id}`)
-  //         res.redirect(`authors`)
-  //     }
-  // })
 });
 
 router.get("/:id", (req, res) => {
-  //   res.send("show author", req.params.id);
   res.status(200).send(req.params.id.toString());
 });
 
-router.get("/:id/edit", (req, res) => {
-  res.send("edit author", req.params.id);
-  res.status(200).send("edit", req.params.id.toString());
+router.get("/:id/edit", async (req, res) => {
+  try {
+    const author = await Author.findById(req.params.id);
+    res.render("authors/edit", { author: author });
+  } catch {
+    res.redirect("/authors");
+  }
 });
 
-router.put("/:id", (req, res) => {
-  res.send("update author", req.params.id);
-  res.status(200).send("update", req.params.id.toString());
+router.put("/:id", async (req, res) => {
+  let author;
+  try {
+    author = await Author.findById(req.params.id);
+    author.name = req.body.name;
+    console.log("author name", author.name);
+    await author.save();
+    res.redirect(`/authors/${author.id}`);
+  } catch {
+    if (author == null) {
+      res.redirect("/");
+    } else {
+      res.render("/authors/edit", {
+        author: author,
+        errorMessage: "Error updating the Author",
+      });
+    }
+  }
 });
 
-router.delete("./:id", (req, res) => {
-  res.send("delete author", req.params.id);
+router.delete("/authors/:id", async (req, res) => {
+  let author;
+  try {
+    author = await Author.findById(req.params.id);
+    author.remove();
+    res.redirect(`/authors`);
+  } catch {
+    if (author == null) {
+      res.redirect("/");
+    } else {
+      res.redirect(`/authors/${author.id}`);
+    }
+  }
 });
 
 module.exports = router;
